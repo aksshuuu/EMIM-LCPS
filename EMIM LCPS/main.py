@@ -45,13 +45,14 @@ def payment_gateway(total_saved):
 
 def simulate_loan():
     print("\n--- EMI Master & Prepayment Simulator ---")
+
     try:
         principal = float(input("Enter Loan Principal: "))
         annual_rate = float(input("Enter Annual Interest Rate (%): "))
         tenure_years = int(input("Enter Tenure in Years: "))
         prepayment = float(input("Enter Monthly Prepayment Amount (0 if none): "))
     except ValueError:
-        print("Error: Please enter numeric values for your loan details.")
+        print("Error: Please enter numeric values.")
         return
 
     monthly_rate = annual_rate / 1200
@@ -60,8 +61,8 @@ def simulate_loan():
     standard_emi = calculate_emi(principal, monthly_rate, total_months)
     original_total_pay = standard_emi * total_months
 
-    print(f"\nStandard Monthly EMI: {round(standard_emi, 2)}")
-    print(f"Total Interest without Prepayment: {round(original_total_pay - principal, 2)}")
+    print(f"\nStandard EMI: {round(standard_emi, 2)}")
+    print(f"Total Interest (No Prepayment): {round(original_total_pay - principal, 2)}")
 
     balance = principal
     month_count = 0
@@ -69,30 +70,28 @@ def simulate_loan():
 
     while balance > 0:
         month_count += 1
-        interest_for_month = balance * monthly_rate
-        # Ensure we don't overpay the last month
-        if (standard_emi + prepayment) > (balance + interest_for_month):
-            principal_paid = balance
-            total_interest_paid += interest_for_month
+        interest = balance * monthly_rate
+
+        if (standard_emi + prepayment) > (balance + interest):
+            total_interest_paid += interest
             balance = 0
         else:
-            principal_paid = (standard_emi - interest_for_month) + prepayment
-            total_interest_paid += interest_for_month
+            principal_paid = (standard_emi - interest) + prepayment
+            total_interest_paid += interest
             balance -= principal_paid
 
-        if month_count > (total_months * 2):  # Safety break
+        if month_count > (total_months * 2):
             break
 
     new_tenure_years = month_count / 12
     interest_saved = (original_total_pay - principal) - total_interest_paid
 
     print("-" * 40)
-    print(f"New Tenure with Prepayments: {round(new_tenure_years, 2)} years")
+    print(f"New Tenure: {round(new_tenure_years, 2)} years")
     print(f"Months Saved: {total_months - month_count}")
-    print(f"TOTAL INTEREST SAVED: {round(interest_saved, 2)}")
+    print(f"Interest Saved: {round(interest_saved, 2)}")
     print("-" * 40)
 
-    # Trigger the simulated payment/confirmation gateway
     payment_gateway(interest_saved)
 
 
@@ -100,6 +99,7 @@ def main():
     while True:
         print("1. EMI Master - Loan Simulator")
         print("2. Exit")
+
         choice = input("Select one of the options: ")
 
         if choice == '1':
@@ -108,8 +108,8 @@ def main():
             print("Exiting System. Goodbye!")
             sys.exit(0)
         else:
-            print("Invalid option. Please try again.\n")
+            print("Invalid option.\n")
 
 
 if __name__ == "__main__":
-    main()1
+    main()
